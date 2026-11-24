@@ -3,9 +3,13 @@ name: Build openvr_api.dll (Windows)
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Version to release, e.g. v0.1.0 (leave empty to just build)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -78,12 +82,16 @@ jobs:
           path: out/
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      TAG: ${{ inputs.release_tag }}
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
@@ -91,17 +99,19 @@ jobs:
       - name: Package DLLs
         run: |
           cd artifacts
-          (cd openvr_api-x64 && zip -q ../../OpenComposite-${GITHUB_REF_NAME}-x64.zip openvr_api.dll LICENSE.txt)
-          (cd openvr_api-Win32 && zip -q ../../OpenComposite-${GITHUB_REF_NAME}-x86.zip openvr_api.dll LICENSE.txt)
+          (cd openvr_api-x64 && zip -q ../../OpenComposite-${TAG}-x64.zip openvr_api.dll LICENSE.txt)
+          (cd openvr_api-Win32 && zip -q ../../OpenComposite-${TAG}-x86.zip openvr_api.dll LICENSE.txt)
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "$GITHUB_REF_NAME" \
-            --notes-from-tag \
+          notes=dist/release-notes/$TAG.md
+          if [ -f "$notes" ]; then notes_arg=(--notes-file "$notes"); else notes_arg=(--generate-notes); fi
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            "${notes_arg[@]}" \
             --prerelease \
-            OpenComposite-${GITHUB_REF_NAME}-x64.zip \
-            OpenComposite-${GITHUB_REF_NAME}-x86.zip
+            OpenComposite-$TAG-x64.zip \
+            OpenComposite-$TAG-x86.zip
