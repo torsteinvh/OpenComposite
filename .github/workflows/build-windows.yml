@@ -1,0 +1,77 @@
+name: Build openvr_api.dll (Windows)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [x64, Win32]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # The project expects a Vulkan SDK in libs/vulkan (Include + Lib/Lib32).
+      # First try the same mini SDK the original AppVeyor build used.
+      - name: Get Vulkan mini SDK
+        id: vkmini
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://znix.xyz/random/vulkan-1.1.85.0-minisdk.7z -OutFile vulkan-minisdk.7z
+          7z x -olibs vulkan-minisdk.7z
+          if (-not (Test-Path libs/vulkan/Include)) { throw "mini SDK did not unpack to libs/vulkan" }
+
+      # Fallback: install the official LunarG Vulkan SDK and copy what we need into libs/vulkan.
+      - name: Install Vulkan SDK (fallback)
+        if: steps.vkmini.outcome != 'success'
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: latest
+          cache: true
+
+      - name: Copy Vulkan SDK into libs/vulkan (fallback)
+        if: steps.vkmini.outcome != 'success'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force libs/vulkan | Out-Null
+          Copy-Item -Recurse -Force "$env:VULKAN_SDK/Include" libs/vulkan/Include
+          Copy-Item -Recurse -Force "$env:VULKAN_SDK/Lib" libs/vulkan/Lib
+          if (Test-Path "$env:VULKAN_SDK/Lib32") { Copy-Item -Recurse -Force "$env:VULKAN_SDK/Lib32" libs/vulkan/Lib32 }
+
+      - name: Configure
+        shell: pwsh
+        run: cmake -S . -B build -A ${{ matrix.platform }} -DOC_VERSION="${{ github.sha }}"
+
+      - name: Build
+        run: cmake --build build --config Release --target OCOVR
+
+      - name: Collect DLL
+        shell: pwsh
+        run: |
+          $name = if ('${{ matrix.platform }}' -eq 'x64') { 'vrclient_x64.dll' } else { 'vrclient.dll' }
+          $dll = Get-ChildItem -Recurse build -Filter $name | Select-Object -First 1
+          if (-not $dll) { throw "Could not find $name in build output" }
+          New-Item -ItemType Directory -Force out | Out-Null
+          Copy-Item $dll.FullName out/openvr_api.dll
+          Copy-Item LICENSE.txt out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openvr_api-${{ matrix.platform }}
+          path: out/

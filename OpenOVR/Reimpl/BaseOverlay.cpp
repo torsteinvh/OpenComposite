@@ -814,9 +814,23 @@ EVROverlayError BaseOverlay::GetOverlayTextureSize(VROverlayHandle_t ulOverlayHa
 {
 	STUBBED();
 }
+// OpenComposite has no SteamVR dashboard. Instead of aborting when an app sets up dashboard
+// overlays, create them as ordinary overlays. They are never shown, since IsDashboardVisible()
+// always returns false, but the app gets valid handles and can keep running.
 EVROverlayError BaseOverlay::CreateDashboardOverlay(const char* pchOverlayKey, const char* pchOverlayFriendlyName, VROverlayHandle_t* pMainHandle, VROverlayHandle_t* pThumbnailHandle)
 {
-	STUBBED();
+	if (!pchOverlayKey)
+		return VROverlayError_InvalidParameter;
+
+	EVROverlayError err = CreateOverlay(pchOverlayKey, pchOverlayFriendlyName, pMainHandle);
+	if (err != VROverlayError_None)
+		return err;
+
+	if (pThumbnailHandle) {
+		std::string thumbKey = std::string(pchOverlayKey) + ".thumbnail";
+		err = CreateOverlay(thumbKey.c_str(), pchOverlayFriendlyName, pThumbnailHandle);
+	}
+	return err;
 }
 bool BaseOverlay::IsDashboardVisible()
 {
@@ -826,23 +840,27 @@ bool BaseOverlay::IsDashboardVisible()
 }
 bool BaseOverlay::IsActiveDashboardOverlay(VROverlayHandle_t ulOverlayHandle)
 {
-	STUBBED();
+	// The dashboard is never open, so no dashboard overlay is ever active.
+	return false;
 }
 EVROverlayError BaseOverlay::SetDashboardOverlaySceneProcess(VROverlayHandle_t ulOverlayHandle, uint32_t unProcessId)
 {
-	STUBBED();
+	// No dashboard to associate a scene process with; accept and ignore.
+	return VROverlayError_None;
 }
 EVROverlayError BaseOverlay::GetDashboardOverlaySceneProcess(VROverlayHandle_t ulOverlayHandle, uint32_t* punProcessId)
 {
-	STUBBED();
+	if (punProcessId)
+		*punProcessId = 0;
+	return VROverlayError_None;
 }
 void BaseOverlay::ShowDashboard(const char* pchOverlayToShow)
 {
-	STUBBED();
+	// No dashboard to show; ignore the request instead of aborting.
 }
 TrackedDeviceIndex_t BaseOverlay::GetPrimaryDashboardDevice()
 {
-	STUBBED();
+	return k_unTrackedDeviceIndexInvalid;
 }
 EVROverlayError BaseOverlay::ShowKeyboardWithDispatch(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode,
     const char* pchDescription, uint32_t unCharMax, const char* pchExistingText, bool bUseMinimalMode, uint64_t uUserValue,
