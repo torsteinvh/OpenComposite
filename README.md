@@ -23,7 +23,7 @@ See [interface support and limitations](dist/interface-support.md) for details. 
 
 ## Download and install (Windows)
 
-The easiest way is to download a zip for your game's architecture (x64 for 64-bit games, x86 for 32-bit games) from this fork's [Releases](https://github.com/torsteinvh/OpenComposite/releases). To make a new release, run the [Build openvr_api.dll (Windows)](https://github.com/torsteinvh/OpenComposite/actions/workflows/build-windows.yml) workflow with **Run workflow** and enter a version such as `v0.2.0`. Release notes are taken from `dist/release-notes/<version>.md` if that file exists.
+The easiest way is to download a zip for your game's architecture (x64 for 64-bit games, x86 for 32-bit games) from this fork's [Releases](https://github.com/torsteinvh/OpenComposite/releases). To make a new release, run the [Build openvr_api.dll (Windows)](https://github.com/torsteinvh/OpenComposite/actions/workflows/build-windows.yml) workflow with **Run workflow** and enter a version such as `v0.2.0`. Release notes are taken from `dist/release-notes/<version>.md` if that file exists. New releases are marked as the latest release; tick **Mark the release as a pre-release** to publish a pre-release instead.
 
 The newest build of `main` is also available as GitHub Actions artifacts:
 
