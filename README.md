@@ -4,7 +4,9 @@ A community fork of [OpenComposite](https://gitlab.com/znixian/OpenOVR/-/tree/op
 
 This fork adds newer OpenVR interface compatibility and standard OpenXR eye-gaze input. It is an independent, experimental fork. Credit for the original project belongs to Campbell Suter (ZNix) and the upstream contributors; their commit history and license notices are preserved.
 
-> **torsteinvh/OpenComposite** is a personal fork of [ClarkCheekyKent/OpenComposite](https://github.com/ClarkCheekyKent/OpenComposite). It adds a fix for apps that abort with `Hit stubbed file at ...BaseOverlay.cpp:819 func CreateDashboardOverlay`, and builds `openvr_api.dll` automatically with GitHub Actions. Everything else is inherited unchanged from ClarkCheekyKent's fork.
+> **torsteinvh/OpenComposite** is a personal fork of [ClarkCheekyKent/OpenComposite](https://github.com/ClarkCheekyKent/OpenComposite). It fixes apps that abort with `Hit stubbed file at ...BaseOverlay.cpp:819 func CreateDashboardOverlay` or `...BaseOverlay.cpp:799 func SetOverlayRaw`, and builds `openvr_api.dll` automatically with GitHub Actions. Everything else is inherited unchanged from ClarkCheekyKent's fork.
+>
+> **Tested:** Automobilista 2 on a Meta Quest 3 through Virtual Desktop, running together with [ams2-qvfr](https://github.com/hypeapps/ams2-qvfr) and the Dynamic Track Debris 0.4.1 mod. Before these fixes, that combination stopped with the errors above.
 
 ## Changes in this fork
 
@@ -41,7 +43,7 @@ Upstream's launcher and download services distribute upstream builds. Use this f
 
 ## Validation and known limitations
 
-Windows Release x64 and x86 builds succeed in GitHub Actions. The dashboard-overlay fix has been confirmed to get past `CreateDashboardOverlay` in a game; the `SetOverlayRaw`/`SetOverlayFromFile` change has so far only been verified to compile. The focused gaze test uses simulated OpenXR responses to exercise inactive tracking, position and direction, requested timestamps, tracking loss, and runtime errors.
+Windows Release x64 and x86 builds succeed in GitHub Actions. The dashboard and `SetOverlayRaw`/`SetOverlayFromFile` changes (v0.2.0) have been tested in Automobilista 2 on a Meta Quest 3 through Virtual Desktop, together with [ams2-qvfr](https://github.com/hypeapps/ams2-qvfr) and Dynamic Track Debris 0.4.1. Other games and headsets have not been tested with these changes. The focused gaze test uses simulated OpenXR responses to exercise inactive tracking, position and direction, requested timestamps, tracking loss, and runtime errors.
 
 No Man's Sky and the Pimax Crystal Super OLED have not been tested with this build. Linux clock conversion is implemented but has not been compiled or tested in this Windows workspace.
 
