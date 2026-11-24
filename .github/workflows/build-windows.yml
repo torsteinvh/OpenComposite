@@ -3,6 +3,7 @@ name: Build openvr_api.dll (Windows)
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -75,3 +76,32 @@ jobs:
         with:
           name: openvr_api-${{ matrix.platform }}
           path: out/
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Package DLLs
+        run: |
+          cd artifacts
+          (cd openvr_api-x64 && zip -q ../../OpenComposite-${GITHUB_REF_NAME}-x64.zip openvr_api.dll LICENSE.txt)
+          (cd openvr_api-Win32 && zip -q ../../OpenComposite-${GITHUB_REF_NAME}-x86.zip openvr_api.dll LICENSE.txt)
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-from-tag \
+            --prerelease \
+            OpenComposite-${GITHUB_REF_NAME}-x64.zip \
+            OpenComposite-${GITHUB_REF_NAME}-x86.zip

@@ -22,7 +22,9 @@ See [interface support and limitations](dist/interface-support.md) for details. 
 
 ## Download and install (Windows)
 
-Builds of this fork are published as GitHub Actions artifacts, not as Releases:
+The easiest way is to download a zip for your game's architecture (x64 for 64-bit games, x86 for 32-bit games) from this fork's [Releases](https://github.com/torsteinvh/OpenComposite/releases). A release is built automatically when a version tag (`v*`) is pushed.
+
+The newest build of `main` is also available as GitHub Actions artifacts:
 
 1. Open the [Actions page](https://github.com/torsteinvh/OpenComposite/actions/workflows/build-windows.yml) and select the latest successful run.
 2. Under **Artifacts**, download `openvr_api-x64` for 64-bit games (most current VR games) or `openvr_api-Win32` for 32-bit games. You must be signed in to GitHub to download artifacts, and GitHub deletes them after 90 days; push a commit or run the workflow manually (**Run workflow**) to get a fresh build.
@@ -34,7 +36,7 @@ Then install it per game:
 3. Replace the game's DLL with the extracted `openvr_api.dll`.
 4. Select your headset's OpenXR runtime and start the game. Restore the original DLL to undo the change.
 
-Upstream's launcher and download services distribute upstream builds. Use this fork's build artifacts to obtain these changes.
+Upstream's launcher and download services distribute upstream builds. Use this fork's releases or build artifacts to obtain these changes.
 
 ## Validation and known limitations
 
