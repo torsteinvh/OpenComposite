@@ -34,3 +34,5 @@ References: [Valve's eye action documentation](https://partner.steamgames.com/do
 - IVRIPCResourceManagerClient_003
 
 Registered interfaces can still contain unsupported methods, including aborting stubs inherited from upstream. Registering an interface does not imply every function or feature is implemented. Older interface revisions were not exhaustively compared in this check.
+
+In torsteinvh/OpenComposite, the dashboard functions of `IVROverlay` (`CreateDashboardOverlay`, `IsActiveDashboardOverlay`, `SetDashboardOverlaySceneProcess`, `GetDashboardOverlaySceneProcess`, `ShowDashboard`, `GetPrimaryDashboardDevice`) no longer abort. Dashboard overlays are created as ordinary overlays that are never shown, because OpenComposite has no dashboard.
