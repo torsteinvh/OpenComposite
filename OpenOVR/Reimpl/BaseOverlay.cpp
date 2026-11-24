@@ -794,13 +794,37 @@ EVROverlayError BaseOverlay::ClearOverlayTexture(VROverlayHandle_t ulOverlayHand
 	overlay->compositor.reset();
 	return VROverlayError_None;
 }
+// Overlays set from raw pixels or image files are not rendered yet: OpenComposite only renders
+// overlays from GPU textures (SetOverlayTexture). Apps typically use these for small icons, such as
+// dashboard thumbnails, which are never shown anyway. Accept the call and log it once instead of
+// aborting the app.
 EVROverlayError BaseOverlay::SetOverlayRaw(VROverlayHandle_t ulOverlayHandle, void* pvBuffer, uint32_t unWidth, uint32_t unHeight, uint32_t unDepth)
 {
-	STUBBED();
+	USEH();
+	if (!pvBuffer || unWidth == 0 || unHeight == 0)
+		return VROverlayError_InvalidParameter;
+
+	static bool warned = false;
+	if (!warned) {
+		warned = true;
+		OOVR_LOGF("SetOverlayRaw is not rendered by OpenComposite; ignoring (overlay '%s', %ux%u, %u bytes/pixel)",
+		    overlay->key.c_str(), unWidth, unHeight, unDepth);
+	}
+	return VROverlayError_None;
 }
 EVROverlayError BaseOverlay::SetOverlayFromFile(VROverlayHandle_t ulOverlayHandle, const char* pchFilePath)
 {
-	STUBBED();
+	USEH();
+	if (!pchFilePath)
+		return VROverlayError_InvalidParameter;
+
+	static bool warned = false;
+	if (!warned) {
+		warned = true;
+		OOVR_LOGF("SetOverlayFromFile is not rendered by OpenComposite; ignoring (overlay '%s', file '%s')",
+		    overlay->key.c_str(), pchFilePath);
+	}
+	return VROverlayError_None;
 }
 EVROverlayError BaseOverlay::GetOverlayTexture(VROverlayHandle_t ulOverlayHandle, void** pNativeTextureHandle, void* pNativeTextureRef, uint32_t* pWidth, uint32_t* pHeight, uint32_t* pNativeFormat, ETextureType* pAPIType, EColorSpace* pColorSpace, VRTextureBounds_t* pTextureBounds)
 {

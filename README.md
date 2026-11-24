@@ -16,6 +16,7 @@ This fork adds newer OpenVR interface compatibility and standard OpenXR eye-gaze
 Added in torsteinvh/OpenComposite:
 
 - **Dashboard overlays no longer abort the app.** OpenComposite has no SteamVR dashboard, and `CreateDashboardOverlay` used to stop the app with a "Hit stubbed file" error. It now creates the dashboard and thumbnail overlays as ordinary overlays that are never shown (`IsDashboardVisible()` is always `false`). The related calls `IsActiveDashboardOverlay`, `SetDashboardOverlaySceneProcess`, `GetDashboardOverlaySceneProcess`, `ShowDashboard` and `GetPrimaryDashboardDevice` return harmless defaults instead of aborting.
+- **Raw and file overlays no longer abort the app.** `SetOverlayRaw` and `SetOverlayFromFile` are accepted and logged once instead of stopping the app with a "Hit stubbed file" error. The image is not rendered: OpenComposite only renders overlays from GPU textures (`SetOverlayTexture`). Apps typically use these calls for small icons such as dashboard thumbnails.
 - **Automatic Windows builds.** The [Build openvr_api.dll (Windows)](.github/workflows/build-windows.yml) workflow builds x64 and Win32 DLLs on every push to `main`.
 
 See [interface support and limitations](dist/interface-support.md) for details. Interface registration does not imply every method is implemented; some inherited unsupported calls can still abort.
@@ -40,7 +41,7 @@ Upstream's launcher and download services distribute upstream builds. Use this f
 
 ## Validation and known limitations
 
-Windows Release x64 and x86 builds succeed in GitHub Actions. The dashboard-overlay fix has so far only been verified to compile; it has not yet been tested in a game. The focused gaze test uses simulated OpenXR responses to exercise inactive tracking, position and direction, requested timestamps, tracking loss, and runtime errors.
+Windows Release x64 and x86 builds succeed in GitHub Actions. The dashboard-overlay fix has been confirmed to get past `CreateDashboardOverlay` in a game; the `SetOverlayRaw`/`SetOverlayFromFile` change has so far only been verified to compile. The focused gaze test uses simulated OpenXR responses to exercise inactive tracking, position and direction, requested timestamps, tracking loss, and runtime errors.
 
 No Man's Sky and the Pimax Crystal Super OLED have not been tested with this build. Linux clock conversion is implemented but has not been compiled or tested in this Windows workspace.
 
