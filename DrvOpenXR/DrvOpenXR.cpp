@@ -223,8 +223,10 @@ IBackend* DrvOpenXR::CreateOpenXRBackend(const char* startupInfo)
 	if (availableExtensions.count(XR_EXT_HAND_TRACKING_EXTENSION_NAME))
 		extensions.push_back(XR_EXT_HAND_TRACKING_EXTENSION_NAME);
 
-	if (availableExtensions.count(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME))
+	if (oovr_global_configuration.EnableEyeGaze() && availableExtensions.count(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME))
 		extensions.push_back(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME);
+	else if (availableExtensions.count(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME))
+		OOVR_LOG("Not requesting XR_EXT_eye_gaze_interaction (enableEyeGaze is off)");
 #ifdef _WIN32
 	if (availableExtensions.count(XR_KHR_WIN32_CONVERT_PERFORMANCE_COUNTER_TIME_EXTENSION_NAME))
 		extensions.push_back(XR_KHR_WIN32_CONVERT_PERFORMANCE_COUNTER_TIME_EXTENSION_NAME);

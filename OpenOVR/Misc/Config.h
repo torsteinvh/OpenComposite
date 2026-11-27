@@ -16,6 +16,7 @@ public:
 	inline bool EnableHiddenMeshFix() const { return enableHiddenMeshFix; }
 	inline bool InvertUsingShaders() const { return invertUsingShaders; }
 	inline bool InitUsingVulkan() const { return initUsingVulkan; }
+	inline bool EnableEyeGaze() const { return enableEyeGaze; }
 	float HiddenMeshVerticalScale() const { return hiddenMeshVerticalScale; }
 	inline bool LogAllOpenVRCalls() const { return logAllOpenVRCalls; }
 
@@ -36,6 +37,9 @@ private:
 	bool enableHiddenMeshFix = true;
 	bool invertUsingShaders = false;
 	bool initUsingVulkan = false;
+	// TEST BUILD: off by default to check whether the fork's own XR_EXT_eye_gaze_interaction use
+	// breaks eye tracking for other users of the extension (e.g. ams2-qvfr's OpenXR layer).
+	bool enableEyeGaze = false;
 	float hiddenMeshVerticalScale = 1.0f;
 	bool logAllOpenVRCalls = false;
 };
